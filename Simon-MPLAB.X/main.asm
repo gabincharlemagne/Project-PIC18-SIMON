@@ -259,31 +259,15 @@ CreateRandomNum:
     BANKSEL 0x100
     MOVWF   randomNum
     RETURN
-	
-
-DEBUT
-
-    ; TODO Step #5 - Insert Your Program Here
-    CALL InitTimer0    ; Initialisez Timer0 pour la génération aléatoire
-    CALL CreateRandomNum  ; Génère un nombre aléatoire entre 0 et 3
-    ; Configuration initiale LEDs (verte)
-    BANKSEL TRISC       ; Sélection de la banque pour TRISC
-    CLRF TRISC          ; Configure PORTC comme sortie
-
-    ; Allumer et éteindre les LEDs
-    loop:
-        CALL TurnOnLD0
-        CALL TunOffLD0
-        GOTO loop
-
-    ; Sous-routine pour allumer toutes les LEDs
-    TurnOnAllLEDs:
-        BANKSEL LATC    ; Sélection de la banque pour LATC
-        BSF LATC, 4     ; Allume la LED sur RC4
-        BSF LATC, 5     ; Allume la LED sur RC5
-        BSF LATC, 6     ; Allume la LED sur RC6
-        BSF LATC, 7     ; Allume la LED sur RC7
-        RETURN
+    
+; Sous-routine pour allumer toutes les LEDs
+TurnOnAllLEDs:
+    BANKSEL LATC    ; Sélection de la banque pour LATC
+    BSF LATC, 4     ; Allume la LED sur RC4
+    BSF LATC, 5     ; Allume la LED sur RC5
+    BSF LATC, 6     ; Allume la LED sur RC6
+    BSF LATC, 7     ; Allume la LED sur RC7
+    RETURN
 
     ; Sous-routien pour alumer un led par une LED
     ;LD0 On
@@ -344,6 +328,22 @@ DEBUT
 	BANKSEL LATC
 	BCF LATC, 7
 	RETURN
+
+DEBUT
+
+    ; TODO Step #5 - Insert Your Program Here
+    CALL InitTimer0    ; Initialisez Timer0 pour la génération aléatoire
+    CALL CreateRandomNum  ; Génère un nombre aléatoire entre 0 et 3
+    ; Configuration initiale LEDs (verte)
+    BANKSEL TRISC       ; Sélection de la banque pour TRISC
+    CLRF TRISC          ; Configure PORTC comme sortie
+
+    ; Allumer et éteindre les LEDs
+    loop:
+        CALL TurnOnLD0
+        CALL TunOffLD0
+        GOTO loop
+
 
     END
 

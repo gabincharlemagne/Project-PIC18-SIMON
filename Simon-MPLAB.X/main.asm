@@ -71,7 +71,7 @@
 ;*******************************************************************************
 
 ; TODO INSERT INCLUDE CODE HERE
-
+#include "p18f25k40.inc"
 ;*******************************************************************************
 ;
 ; TODO Step #2 - Configuration Word Setup
@@ -92,48 +92,6 @@
 ;*******************************************************************************
 
 ; TODO INSERT CONFIG HERE
-
-;*******************************************************************************
-;
-; TODO Step #3 - Variable Definitions
-;
-; Refer to datasheet for available data memory (RAM) organization assuming
-; relocatible code organization (which is an option in project
-; properties > mpasm (Global Options)).  Absolute mode generally should
-; be used sparingly.
-;
-; Example of using GPR Uninitialized Data
-;
-;   GPR_VAR        UDATA
-;   MYVAR1         RES        1      ; User variable linker places
-;   MYVAR2         RES        1      ; User variable linker places
-;   MYVAR3         RES        1      ; User variable linker places
-;
-;   ; Example of using Access Uninitialized Data Section (when available)
-;   ; The variables for the context saving in the device datasheet may need
-;   ; memory reserved here.
-;   INT_VAR        UDATA_ACS
-;   W_TEMP         RES        1      ; w register for context saving (ACCESS)
-;   STATUS_TEMP    RES        1      ; status used for context saving
-;   BSR_TEMP       RES        1      ; bank select used for ISR context saving
-;
-;*******************************************************************************
-
-; TODO PLACE VARIABLE DEFINITIONS GO HERE
-
-;*******************************************************************************
-; Reset Vector
-;*******************************************************************************
-RES_VECT  CODE    0x0000            ; processor reset vector
-    GOTO    DEBUT                   ; go to beginning of program
-    
-; PIC18F25K40 Configuration Bit Settings
-
-; Assembly source line config statements
-
-; Assembly source line config statements
-
-#include "p18f25k40.inc"
 
 ; CONFIG1L
   CONFIG  FEXTOSC = OFF         ; External Oscillator mode Selection bits (Oscillator not enabled)
@@ -194,6 +152,47 @@ RES_VECT  CODE    0x0000            ; processor reset vector
 ; CONFIG6H
   CONFIG  EBTRB = OFF           ; Boot Block Table Read Protection bit (Boot Block (000000-0007FFh) not protected from table reads executed in other blocks)
 
+;*******************************************************************************
+;
+; TODO Step #3 - Variable Definitions
+;
+; Refer to datasheet for available data memory (RAM) organization assuming
+; relocatible code organization (which is an option in project
+; properties > mpasm (Global Options)).  Absolute mode generally should
+; be used sparingly.
+;
+; Example of using GPR Uninitialized Data
+;
+;   GPR_VAR        UDATA
+;   MYVAR1         RES        1      ; User variable linker places
+;   MYVAR2         RES        1      ; User variable linker places
+;   MYVAR3         RES        1      ; User variable linker places
+;
+;   ; Example of using Access Uninitialized Data Section (when available)
+;   ; The variables for the context saving in the device datasheet may need
+;   ; memory reserved here.
+;   INT_VAR        UDATA_ACS
+;   W_TEMP         RES        1      ; w register for context saving (ACCESS)
+;   STATUS_TEMP    RES        1      ; status used for context saving
+;   BSR_TEMP       RES        1      ; bank select used for ISR context saving
+;
+;*******************************************************************************
+
+; TODO PLACE VARIABLE DEFINITIONS GO HERE
+GRP UDATA 0x100
+randomNum   RES 1
+;*******************************************************************************
+; Reset Vector
+;*******************************************************************************
+RES_VECT  CODE    0x0000            ; processor reset vector
+    GOTO    DEBUT                   ; go to beginning of program
+    
+; PIC18F25K40 Configuration Bit Settings
+
+; Assembly source line config statements
+
+; Assembly source line config statements
+
 
 ;*******************************************************************************
 ; TODO Step #4 - Interrupt Service Routines
@@ -245,11 +244,28 @@ RES_VECT  CODE    0x0000            ; processor reset vector
 ;*******************************************************************************
 
 MAIN_PROG CODE                      ; let linker place main program
+ 
+InitTimer0:
+    MOVLW   b'10000000'
+    MOVWF   T0CON0
+    MOVLW   b'01000000'
+    MOVWF   T0CON1
+    CLRF    TMR0L       ; Réinitialiser Timer0
+    RETURN
+
+CreateRandomNum:
+    MOVF    TMR0L, W    ; Chargez la valeur du Timer 0 dans W
+    ANDLW   0x03        ; Appliquez un masque pour obtenir les 2 bits de poids faible
+    BANKSEL 0x100
+    MOVWF   randomNum
+    RETURN
+	
 
 DEBUT
 
     ; TODO Step #5 - Insert Your Program Here
-    
+    CALL InitTimer0    ; Initialisez Timer0 pour la génération aléatoire
+    CALL CreateRandomNum  ; Génère un nombre aléatoire entre 0 et 3
     ; Configuration initiale LEDs (verte)
     BANKSEL TRISC       ; Sélection de la banque pour TRISC
     CLRF TRISC          ; Configure PORTC comme sortie
